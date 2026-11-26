@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Zallar — Virtual Museum{% endblock %}
+{% block content %}
+<a class="back" href="/panel/">← Boshqaruv paneli</a>
+<div class="bar">
+  <div>
+    <p class="eyebrow">Administrator</p>
+    <h1>Zallar</h1>
+    <p class="muted small">3D muzeyda zallar koridorning ikki tomoniga "Tartib" bo'yicha joylashadi.</p>
+  </div>
+  <a class="btn btn-gold" href="/panel/halls/new/">+ Yangi zal</a>
+</div>
+
+<div class="table-wrap">
+<table class="table">
+  <thead><tr><th>Tartib</th><th>Nomi</th><th>Kod</th><th>Ranglar</th><th>Asarlar</th><th></th></tr></thead>
+  <tbody>
+  {% for h in halls %}
+    <tr>
+      <td>{{ h.order }}</td>
+      <td><b>{{ h.name }}</b>{% if h.is_sculpture %} <span class="tag tag-gold">Haykallar</span>{% endif %}<br><span class="muted small">{{ h.tagline }}</span></td>
+      <td><a href="{{ h.url }}">{{ h.slug }}</a></td>
+      <td>
+        <span class="tag" style="background: {{ h.accent }}; color: #111">{{ h.accent }}</span>
+        <span class="tag" style="background: {{ h.wall_color }}">{{ h.wall_color }}</span>
+      </td>
+      <td>{{ h.total }}</td>
+      <td class="actions">
+        <a href="/panel/halls/{{ h.id }}/edit/">Tahrirlash</a>
+        <a class="danger" href="/panel/halls/{{ h.id }}/delete/">O'chirish</a>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="6" class="muted">Hali zallar yo'q. <code>cargo run -- seed</code> yoki "+ Yangi zal".</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

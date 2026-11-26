@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Virtual Museum{% endblock %}
+{% block content %}
+<div class="panel form-panel">
+  <h1>{{ title }}</h1>
+  <p>{{ text }}</p>
+  <p class="muted small">Bu amalni qaytarib bo'lmaydi.</p>
+  <form method="post" class="row-actions">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <button class="btn btn-danger" type="submit">Ha, o'chirish</button>
+    <a class="btn btn-outline" href="{{ back }}">Bekor qilish</a>
+  </form>
+</div>
+{% endblock %}

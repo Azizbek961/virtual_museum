@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}3D sayohat — Virtual Museum{% endblock %}
+{% block body_class %}fullscreen{% endblock %}
+{% block main_class %}stage{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<div id="stage" data-textures="/static/textures/">
+  <canvas id="view"></canvas>
+  <div class="vignette"></div>
+  <div class="fade"></div>
+  <div class="crosshair"></div>
+  <div id="prompt" class="prompt" hidden><kbd>E</kbd> yoki bosing — asar haqida</div>
+  <div id="where" class="where">Lobbi</div>
+  <button id="quick-share" class="btn-quick-share" type="button" title="Muzeyni QR kod orqali ulashish">
+    <span>💖</span> Ulashish
+  </button>
+  <canvas id="minimap" class="minimap" title="Mini-xarita (M). Xonaga bosing — o'sha yerga o'tasiz."></canvas>
+
+  <div id="menu" class="overlay">
+    <div class="panel tour-menu">
+      <div class="tour-menu-main">
+        <p class="eyebrow">3D sayohat</p>
+        <h1>Virtual Museum</h1>
+        {% if read_only %}
+        <div class="read-only-badge">
+          <span class="ro-icon">👁️</span>
+          <div>
+            <strong>Faqat sayohat rejimi</strong>
+            <p class="small muted" style="margin:0">Siz mehmon sifatida muzeyni aylanyapsiz. Rasmlarni o'zgartirish ruxsati berilmagan.</p>
+          </div>
+        </div>
+        {% else %}
+        <p class="lead">{% if user.is_authenticated %}Xush kelibsiz, {{ user.display_name }}! {% endif %}Lobbidan kirib, koridor bo'ylab
+          {{ halls|length }} ta zalni aylanib chiqing.</p>
+        {% endif %}
+        <ul class="keys desktop-keys">
+          <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> yurish</li>
+          <li><kbd>Sichqoncha</kbd> atrofga qarash</li>
+          <li><kbd>Shift</kbd> tezroq yurish</li>
+          <li><kbd>E</kbd> / bosish — asar haqida</li>
+          <li><kbd>M</kbd> mini-xarita</li>
+          <li><kbd>Esc</kbd> shu menyu</li>
+        </ul>
+        <ul class="keys mobile-keys">
+          <li>👆 <b>Ekranni surish</b> — atrofga qarash</li>
+          <li>🕹️ <b>Pastki tugmalar</b> — yurish va burilish</li>
+          <li>🖼️ <b>Asarga bosish</b> — ma'lumot olish</li>
+          <li>🗺️ <b>Mini-xarita</b> — xonani tanlash</li>
+        </ul>
+        <button id="enter" class="btn btn-gold btn-block">Muzeyga kirish</button>
+        <button id="btn-share-tour" class="btn btn-pink btn-block" type="button" style="margin-top: 10px;">
+          💖 Muzeyni ulashish (QR kod)
+        </button>
+        <p id="loadstate" class="muted small">Yuklanmoqda…</p>
+        <button id="quality" class="linkish small" type="button" title="Kuchsiz kompyuterda 'Tejamkor' rejimni tanlang">Grafika</button>
+      </div>
+      <div class="tour-menu-halls">
+        <p class="eyebrow">Tezkor o'tish</p>
+        <div id="hall-list" class="hall-list"></div>
+        {% if not read_only and user.is_authenticated %}
+        <a class="btn btn-outline btn-sm btn-block" href="/my/art/new/">+ Muzeyga rasm qo'shish</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div id="share-modal" class="share-modal overlay" hidden>
+    <div class="share-modal-card">
+      <button class="share-close" id="share-modal-close" aria-label="Yopish">×</button>
+      <div class="share-header">
+        <span class="share-badge">💖 Muzeyni ulashish</span>
+        <h2>Do'stlaringizni taklif qiling!</h2>
+        <p class="muted small">
+          Ushbu pushti yurak shaklidagi QR kod orqali kirganlar <strong>faqat muzeyda aylana oladilar</strong> (rasmlarni o'zgartira olmaydilar).
+        </p>
+      </div>
+
+      <div class="share-qr-display" id="share-qr-container">
+        <!-- Pushti yurak QR SVG shu yerga joylashtiriladi -->
+      </div>
+
+      <div class="share-link-group">
+        <input type="text" id="share-url-input" class="share-input" readonly>
+        <button id="btn-copy-share" class="btn btn-pink-outline btn-sm" type="button">
+          📋 Nusxalash
+        </button>
+      </div>
+
+      <div class="share-actions">
+        <button id="btn-download-qr" class="btn btn-pink btn-sm btn-block" type="button">
+          💾 QR kodni rasm sifatida saqlash
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="info" class="overlay" hidden>
+    <div class="panel info-panel">
+      <button class="close" id="info-close" aria-label="Yopish">×</button>
+      <img id="info-img" alt="">
+      <div>
+        <h2 id="info-title"></h2>
+        <p class="artist" id="info-artist"></p>
+        <div class="rule"></div>
+        <p id="info-desc"></p>
+        <h3 class="fact-title" id="info-fact-h">Bilasizmi?</h3>
+        <p class="muted" id="info-fact"></p>
+        <p class="small muted" id="info-owner"></p>
+        <div class="row-actions">
+          <a class="btn btn-gold btn-sm" id="info-replace" href="#">Almashtirish</a>
+          <a class="btn btn-outline btn-sm" id="info-link" href="#">Alohida sahifada ochish</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="touch-pad" id="touchpad">
+    <button id="touch-menu" class="tp-menu" aria-label="Menyu">☰</button>
+    <div class="tp-grid">
+      <span></span><button data-key="KeyW" aria-label="Oldinga">▲</button><span></span>
+      <button data-key="TurnLeft" aria-label="Chapga burilish">⟲</button>
+      <button data-key="KeyS" aria-label="Orqaga">▼</button>
+      <button data-key="TurnRight" aria-label="O'ngga burilish">⟳</button>
+    </div>
+  </div>
+</div>
+<script id="museum-data" type="application/json">{{ museum|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script>
+  window.addEventListener('error', function (e) {
+    if (!window.__museumReady) {
+      var el = document.getElementById('loadstate');
+      if (el) {
+        el.innerHTML = "<span style='color:#ff7675'>Xatolik: " + (e.message || "3D skript yuklanmadi") + "</span>";
+      }
+    }
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    if (!window.__museumReady) {
+      var el = document.getElementById('loadstate');
+      if (el) {
+        var msg = (e.reason && e.reason.message) ? e.reason.message : "3D skriptda xatolik";
+        el.innerHTML = "<span style='color:#ff7675'>Xatolik: " + msg + "</span>";
+      }
+    }
+  });
+</script>
+<script type="importmap">
+{ "imports": { "three": "/static/vendor/three.module.js" } }
+</script>
+<script type="module" src="/static/js/museum3d.js?v=4"></script>
+<script src="/static/js/qr-heart.js"></script>
+<script>
+  setTimeout(function () {
+    if (!window.__museumReady) {
+      var el = document.getElementById('loadstate');
+      if (el && !el.innerHTML.includes('Xatolik')) {
+        el.textContent = "3D dvigatel ishga tushmadi. Brauzeringiz WebGL'ni qo'llab-quvvatlashini tekshiring.";
+      }
+    }
+  }, 8000);
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Mening profilim — Virtual Museum{% endblock %}
+{% block content %}
+<div class="profile-head">
+  {% if user.avatar_url %}<img class="avatar lg" src="{{ user.avatar_url }}" alt="">
+  {% else %}<span class="avatar lg placeholder">{{ user.initial }}</span>{% endif %}
+  <div class="grow">
+    <p class="eyebrow">{{ user.role_display }}</p>
+    <h1>{{ user.display_name }}</h1>
+    <p class="muted">@{{ user.username }}{% if user.email %} · {{ user.email }}{% endif %}</p>
+    {% if user.bio %}<p>{{ user.bio }}</p>{% endif %}
+  </div>
+  <div class="head-actions">
+    <a class="btn btn-gold btn-sm" href="/tour/">Muzeyni aylanish</a>
+    <a class="btn btn-outline btn-sm" href="/profile/edit/">Profilni tahrirlash</a>
+    <a class="btn btn-outline btn-sm" href="/profile/password/">Parolni o'zgartirish</a>
+  </div>
+</div>
+
+<div class="bar">
+  <div>
+    <h2 class="section-title">Mening asarlarim <span class="muted">({{ paintings|length }})</span></h2>
+    <p class="muted small">Yuklagan rasmlaringizni faqat siz va administrator ko'radi — boshqa foydalanuvchilarga ko'rinmaydi.</p>
+  </div>
+  <a class="btn btn-gold" href="/my/art/new/">+ Yangi rasm yuklash</a>
+</div>
+
+{% if paintings %}
+<div class="grid">
+  {% for p in paintings %}
+  <div class="card">
+    <a class="card-img" href="{{ p.url }}"><img src="{{ p.image_url }}" alt="{{ p.title }}" loading="lazy"></a>
+    <div class="card-body">
+      <h4>{{ p.title }}</h4>
+      <p class="muted">{{ p.section.name }}{% if p.slot %} · {{ p.slot }}-o'rin{% endif %}</p>
+      {% if not p.slot %}<span class="tag tag-warn">Zalda joyi yo'q — tahrirlab o'rin tanlang</span>{% endif %}
+      {% if p.is_sculpture %}<span class="tag tag-gold">Haykal</span>{% endif %}
+      {% if not p.is_published %}<span class="tag tag-warn">Admin tomonidan yashirilgan</span>{% endif %}
+      <div class="card-actions">
+        <a href="/my/art/{{ p.id }}/edit/">Tahrirlash</a>
+        <a class="danger" href="/my/art/{{ p.id }}/delete/">O'chirish</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+  <p>Siz hali hech qanday rasm yuklamagansiz.</p>
+  <p class="muted small">Yuklagan rasmlaringiz 3D muzeyda tanlangan zal devorida paydo bo'ladi — faqat siz uchun.</p>
+  <a class="btn btn-gold" href="/my/art/new/">Birinchi rasmni yuklash</a>
+</div>
+{% endif %}
+{% endblock %}

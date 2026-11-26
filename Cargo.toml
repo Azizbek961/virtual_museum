@@ -1,0 +1,56 @@
+[package]
+name = "museum"
+version = "0.1.0"
+edition = "2021"
+description = "Virtual Museum — Django loyihasining Rust (axum) versiyasi"
+publish = false
+
+[[bin]]
+name = "museum"
+path = "src/main.rs"
+
+[dependencies]
+# Veb-server
+axum = { version = "0.8", features = ["multipart"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "signal", "net"] }
+tower-http = { version = "0.6", features = ["fs"] }
+
+# Shablonlar (Jinja2 / Django shablonlariga o'xshash sintaksis)
+minijinja = { version = "2", features = ["json"] }
+
+# Ma'lumotlar bazasi (SQLite, kompyuterga alohida o'rnatish shart emas)
+rusqlite = { version = "0.32", features = ["bundled"] }
+
+# Serializatsiya
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_urlencoded = "0.7"
+
+# Parollar (Django bilan mos pbkdf2_sha256 formati)
+pbkdf2 = { version = "0.12", features = ["hmac"] }
+sha2 = "0.10"
+base64 = "0.22"
+rand = "0.8"
+subtle = "2"
+
+# Rasmlar
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "gif", "webp"] }
+# Haykallar zali: rasmdagi asosiy obyektni fondan ajratish (U²-Net modeli, sof Rust)
+tract-onnx = "0.23"
+
+# Boshqalar
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+rpassword = "7"
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
+
+# Debug rejimida ham parol xeshlash va rasm qayta ishlash tez ishlashi uchun
+# kutubxonalarni optimallashtirib kompilyatsiya qilamiz.
+[profile.dev.package."*"]
+opt-level = 3

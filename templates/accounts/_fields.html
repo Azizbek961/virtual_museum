@@ -1,0 +1,28 @@
+{% if form.non_field_errors %}<div class="msg msg-error">{% for e in form.non_field_errors %}{{ e }} {% endfor %}</div>{% endif %}
+{% for f in form.fields %}
+<div class="field{% if f.errors %} has-error{% endif %}{% if f.kind == 'checkbox' %} field-check{% endif %}">
+  {% if f.kind == 'checkbox' %}
+    <label><input type="checkbox" name="{{ f.name }}" id="id_{{ f.name }}" class="check"{% if f.checked %} checked{% endif %}{% if f.disabled %} disabled{% endif %}> {{ f.label }}</label>
+  {% else %}
+    <label for="id_{{ f.name }}">{{ f.label }}</label>
+    {% if f.kind == 'textarea' %}
+      <textarea name="{{ f.name }}" id="id_{{ f.name }}" class="input" rows="{{ f.rows }}"{% if f.max %} maxlength="{{ f.max }}"{% endif %}{% if f.required %} required{% endif %}{% if f.disabled %} disabled{% endif %}>{{ f.value }}</textarea>
+    {% elif f.kind == 'select' %}
+      <select name="{{ f.name }}" id="id_{{ f.name }}" class="input"{% if f.required %} required{% endif %}{% if f.disabled %} disabled{% endif %}>
+        {% for o in f.options %}<option value="{{ o.value }}"{% if o.value == f.value %} selected{% endif %}>{{ o.label }}</option>{% endfor %}
+      </select>
+    {% elif f.kind == 'file' %}
+      {% if f.current %}
+      <p class="small muted">Joriy: <a href="{{ f.current.url }}" target="_blank" rel="noopener">{{ f.current.name }}</a>
+        {% if f.clearable %}<label class="small"><input type="checkbox" name="{{ f.name }}-clear" class="check"> o'chirish</label>{% endif %}
+      </p>
+      {% endif %}
+      <input type="file" name="{{ f.name }}" id="id_{{ f.name }}" class="input"{% if f.accept %} accept="{{ f.accept }}"{% endif %}{% if f.required and not f.current %} required{% endif %}>
+    {% else %}
+      <input type="{{ f.kind }}" name="{{ f.name }}" id="id_{{ f.name }}" class="input"{% if f.kind != 'password' %} value="{{ f.value }}"{% endif %}{% if f.max %} maxlength="{{ f.max }}"{% endif %}{% if f.required %} required{% endif %}{% if f.disabled %} disabled{% endif %}{% if f.autofocus %} autofocus{% endif %}{% if f.autocomplete %} autocomplete="{{ f.autocomplete }}"{% endif %}>
+    {% endif %}
+  {% endif %}
+  {% if f.help %}<small class="help">{{ f.help }}</small>{% endif %}
+  {% for e in f.errors %}<small class="error">{{ e }}</small>{% endfor %}
+</div>
+{% endfor %}

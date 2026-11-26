@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Kirish — Virtual Museum{% endblock %}
+{% block content %}
+<div class="auth">
+  <div class="panel">
+    <p class="eyebrow">Xush kelibsiz</p>
+    <h1>Tizimga kirish</h1>
+    <p class="muted small">Login va parolni muzey administratori beradi. Ro'yxatdan o'tish yopiq.</p>
+    <form method="post" novalidate>
+      <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+      {% include "accounts/_fields.html" %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <button class="btn btn-gold btn-block" type="submit">Kirish</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Virtual Museum{% endblock %}
+{% block content %}
+<div class="panel form-panel">
+  <h1>{{ title }}</h1>
+  <p>{{ message }}</p>
+  <div class="row-actions">
+    <a class="btn btn-gold" href="/">Bosh sahifa</a>
+    {% if not user.is_authenticated %}<a class="btn btn-outline" href="/login/">Kirish</a>{% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ p.title }} — Virtual Museum{% endblock %}
+{% block content %}
+<a class="back" href="{{ p.section.url }}">← {{ p.section.name }}</a>
+<article class="artwork" style="--accent: {{ p.section.accent }}">
+  <div class="artwork-frame"><img src="{{ p.image_url }}" alt="{{ p.title }}"></div>
+  <div class="artwork-info">
+    {% if not p.is_published %}<span class="tag tag-warn">Yashirilgan</span>{% endif %}
+    {% if p.is_sculpture %}<span class="tag tag-gold">Haykal</span> <a class="small" href="{{ p.original_url }}" target="_blank" rel="noopener">Asl rasm</a>{% endif %}
+    {% if p.slot %}<span class="tag">{{ p.slot }}-o'rin</span>{% endif %}
+    <h1>{{ p.title }}</h1>
+    <p class="artist">{{ p.author_name }}{% if p.year %} · {{ p.year }}{% endif %}</p>
+    <div class="rule"></div>
+    {% if p.description %}<p>{{ p.description|linebreaksbr }}</p>{% endif %}
+    {% if p.facts %}
+      <h3 class="fact-title">Bilasizmi?</h3>
+      <p class="muted">{{ p.facts|linebreaksbr }}</p>
+    {% endif %}
+    {% if p.owner %}
+    <div class="owner">
+      {% if p.owner.avatar_url %}<img class="avatar sm" src="{{ p.owner.avatar_url }}" alt="">{% else %}<span class="avatar sm placeholder">{{ p.owner.initial }}</span>{% endif %}
+      <span>Yuklagan: <b>{{ p.owner.display_name }}</b></span>
+    </div>
+    {% endif %}
+    <div class="row-actions">
+      <a class="btn btn-gold" href="/tour/?hall={{ p.section.slug }}">3D muzeyda ko'rish</a>
+      {% if can_edit %}
+        <a class="btn btn-outline" href="/my/art/{{ p.id }}/edit/">Tahrirlash / almashtirish</a>
+        <a class="btn btn-danger" href="/my/art/{{ p.id }}/delete/">O'chirish</a>
+      {% elif replace %}
+        <a class="btn btn-outline" href="{{ replace }}">O'z rasmim bilan almashtirish</a>
+      {% endif %}
+      {% if not can_edit and user.is_museum_admin %}
+        <form method="post" action="/panel/art/{{ p.id }}/toggle/" class="inline">
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"><input type="hidden" name="next" value="{{ request.path }}">
+          <button class="btn btn-outline">{% if p.is_published %}Yashirish{% else %}Ko'rsatish{% endif %}</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</article>
+{% endblock %}

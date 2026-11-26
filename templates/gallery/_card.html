@@ -1,0 +1,10 @@
+{% macro card(p) %}
+<a class="card" href="{{ p.url }}">
+  <div class="card-img"><img src="{{ p.image_url }}" alt="{{ p.title }}" loading="lazy"></div>
+  <div class="card-body">
+    <h4>{{ p.title }}</h4>
+    <p class="muted">{{ p.author_name }}{% if p.year %} · {{ p.year }}{% endif %}</p>
+    {% if p.owner %}<span class="tag">@{{ p.owner.username }}</span>{% endif %}
+  </div>
+</a>
+{% endmacro %}

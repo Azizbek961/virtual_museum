@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Virtual Museum{% endblock %}
+{% block content %}
+<a class="back" href="{{ back }}">← Ortga</a>
+<div class="panel form-panel">
+  <h1>{{ title }}</h1>
+  {% if preview %}<img class="preview" src="{{ preview }}" alt="">{% endif %}
+  <form method="post" {% if multipart %}enctype="multipart/form-data"{% endif %} novalidate>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    {% include "accounts/_fields.html" %}
+    <div class="row-actions">
+      <button class="btn btn-gold" type="submit">{{ submit }}</button>
+      <a class="btn btn-outline" href="{{ back }}">Bekor qilish</a>
+    </div>
+  </form>
+</div>
+{% if slots %}
+<script id="slot-data" type="application/json">{{ slots|tojson }}</script>
+<script>
+  // Zal tanlanganda "O'rin" ro'yxatidagi yozuvlar o'sha zalga moslanadi
+  (function () {
+    var data = JSON.parse(document.getElementById('slot-data').textContent);
+    var section = document.getElementById('id_section'), slot = document.getElementById('id_slot');
+    if (!section || !slot) return;
+    var note = document.createElement('p');
+    note.className = 'small sculpt-note';
+    note.textContent = "Bu Haykallar zali: yuklangan rasm avtomatik ravishda marmar haykalga aylantirilib, tanlangan postamentga qo'yiladi.";
+    section.parentNode.appendChild(note);
+    function update() {
+      var info = data[section.value] || { labels: {}, sculpture: false };
+      for (var i = 0; i < slot.options.length; i++) {
+        var o = slot.options[i];
+        if (!o.value) continue;
+        o.textContent = o.value + "-o'rin — " + (info.labels[o.value] || "bo'sh");
+      }
+      note.hidden = !info.sculpture;
+    }
+    section.addEventListener('change', update);
+    update();
+  })();
+</script>
+{% endif %}
+{% endblock %}

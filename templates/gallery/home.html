@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block main_class %}{% endblock %}
+{% block content %}
+{% from "gallery/_card.html" import card %}
+<section class="hero" style="background-image: linear-gradient(180deg, rgba(10,12,18,.55), rgba(10,12,18,.95)), url('/static/menu_bg.png')">
+  <div class="hero-inner">
+    <p class="eyebrow">Interaktiv 3D muzey</p>
+    <h1>VIRTUAL MUSEUM</h1>
+    <div class="rule"></div>
+    <p class="lead">Tarix, san'at va bilimni immersiv 3D olamda kashf eting. Zallarni aylaning,
+      asarlarga yaqinlashing va har birining hikoyasini o'qing.</p>
+    <div class="hero-actions">
+      {% if user.is_authenticated %}
+      <a class="btn btn-gold" href="/tour/">Muzeyni aylanish</a>
+      <a class="btn btn-outline" href="#halls">Kolleksiyalar</a>
+      {% else %}
+      <a class="btn btn-gold" href="/login/?next=/tour/">Kirish va muzeyni aylanish</a>
+      {% endif %}
+    </div>
+    {% if not user.is_authenticated %}
+    <p class="muted small hero-note">Muzeyga kirish uchun akkaunt kerak. Login va parolni muzey administratori beradi.</p>
+    {% endif %}
+  </div>
+</section>
+
+<div class="container">
+  <h2 class="section-title" id="halls">Zallar</h2>
+  <div class="halls">
+    {% for s in sections %}
+    <a class="hall-card" href="{{ s.url }}" style="--accent: {{ s.accent }}">
+      <span class="hall-num">{% if loop.index < 10 %}0{% endif %}{{ loop.index }}</span>
+      <h3>{{ s.name }}</h3>
+      <p class="muted">{{ s.tagline }}</p>
+      {% if user.is_authenticated %}<span class="hall-count">{{ s.visible_count }} ta asar</span>
+      {% else %}<span class="hall-count">Kirish talab qilinadi</span>{% endif %}
+    </a>
+    {% else %}
+    <p class="muted">Hali zallar yo'q. <code>cargo run -- seed</code> buyrug'ini ishga tushiring.</p>
+    {% endfor %}
+  </div>
+
+  {% if latest %}
+  <h2 class="section-title">{% if user.is_museum_admin %}Foydalanuvchilar yuklagan so'nggi asarlar{% else %}Mening so'nggi asarlarim{% endif %}</h2>
+  {% if not user.is_museum_admin %}<p class="muted small">Bu asarlarni faqat siz va administrator ko'radi.</p>{% endif %}
+  <div class="grid">
+    {% for p in latest %}{{ card(p) }}{% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

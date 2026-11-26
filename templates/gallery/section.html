@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ section.name }} — Virtual Museum{% endblock %}
+{% block content %}
+<div class="page-head" style="--accent: {{ section.accent }}">
+  <div>
+    <p class="eyebrow">{% if section.is_sculpture %}Haykallar zali{% else %}Zal{% endif %} · {{ filled }} / {{ total }} o'rin band</p>
+    <h1>{{ section.name }}</h1>
+    <p class="lead">{{ section.tagline }}</p>
+    {% if section.description %}<p class="muted">{{ section.description }}</p>{% endif %}
+  </div>
+  <div class="head-actions">
+    <a class="btn btn-gold" href="/tour/?hall={{ section.slug }}">3D zalga kirish</a>
+  </div>
+</div>
+
+<p class="muted small slot-note">
+  Zalda {{ total }} ta o'rin bor. Istalgan o'rindagi asarni o'z rasmingiz bilan almashtirishingiz mumkin —
+  muzey fondi asarini almashtirsangiz, o'zgarish faqat sizga ko'rinadi.
+  {% if section.is_sculpture %}Bu zalga yuklangan rasm avtomatik ravishda <b>marmar haykalga</b> aylantiriladi.{% endif %}
+</p>
+
+<div class="grid">
+  {% for s in slots %}
+  {% if s.p %}
+  <div class="card slot-card">
+    <a class="card-img" href="{{ s.p.url }}"><img src="{{ s.p.image_url }}" alt="{{ s.p.title }}" loading="lazy">
+      <span class="slot-num">{{ s.slot }}</span></a>
+    <div class="card-body">
+      <h4><a href="{{ s.p.url }}">{{ s.p.title }}</a></h4>
+      <p class="muted">{{ s.p.author_name }}{% if s.p.year %} · {{ s.p.year }}{% endif %}</p>
+      {% if s.mine %}<span class="tag tag-gold">Sizning asaringiz</span>{% else %}<span class="tag">Muzey fondi</span>{% endif %}
+      {% if s.p.is_sculpture %}<span class="tag">Haykal</span>{% endif %}
+      <div class="card-actions">
+        <a href="{{ s.replace_url }}">{% if s.mine %}Rasmni almashtirish{% else %}O'z rasmim bilan almashtirish{% endif %}</a>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <a class="card slot-card slot-empty" href="{{ s.replace_url }}">
+    <div class="card-img"><span class="slot-plus">+</span><span class="slot-num">{{ s.slot }}</span></div>
+    <div class="card-body">
+      <h4>Bo'sh o'rin</h4>
+      <p class="muted">{% if section.is_sculpture %}Rasm yuklang — u haykalga aylanadi{% else %}Bu o'ringa rasm qo'yish{% endif %}</p>
+    </div>
+  </a>
+  {% endif %}
+  {% endfor %}
+</div>
+{% endblock %}

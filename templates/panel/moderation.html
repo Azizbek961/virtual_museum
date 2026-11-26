@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Moderatsiya — Virtual Museum{% endblock %}
+{% block content %}
+<div class="bar">
+  <div>
+    <p class="eyebrow">Administrator</p>
+    <h1>Asarlar moderatsiyasi</h1>
+  </div>
+  <div class="tabs">
+    <a class="{% if f == 'uploads' %}active{% endif %}" href="?f=uploads">Userlar yuklagan</a>
+    <a class="{% if f == 'hidden' %}active{% endif %}" href="?f=hidden">Yashirilgan</a>
+    <a class="{% if f == 'all' %}active{% endif %}" href="?f=all">Hammasi</a>
+  </div>
+</div>
+
+<div class="grid">
+  {% for p in paintings %}
+  <div class="card{% if not p.is_published %} card-off{% endif %}">
+    <a class="card-img" href="{{ p.url }}"><img src="{{ p.image_url }}" alt="{{ p.title }}" loading="lazy"></a>
+    <div class="card-body">
+      <h4>{{ p.title }}</h4>
+      <p class="muted small">{{ p.section.name }} · {% if p.owner %}@{{ p.owner.username }}{% else %}muzey fondi{% endif %}</p>
+      <p class="muted small">{{ p.created_at }}</p>
+      <div class="card-actions">
+        <form method="post" action="/panel/art/{{ p.id }}/toggle/" class="inline">
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"><input type="hidden" name="next" value="{{ request.full_path }}">
+          <button class="linkish">{% if p.is_published %}Yashirish{% else %}Ko'rsatish{% endif %}</button>
+        </form>
+        <form method="post" action="/panel/art/{{ p.id }}/delete/" class="inline"
+              onsubmit="return confirm('“{{ p.title|escapejs }}” o\'chirilsinmi?')">
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"><input type="hidden" name="next" value="{{ request.full_path }}">
+          <button class="linkish danger">O'chirish</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <p class="muted">Bu bo'limda asar yo'q.</p>
+  {% endfor %}
+</div>
+{% endblock %}
